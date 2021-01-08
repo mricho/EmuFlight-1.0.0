@@ -20,6 +20,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -4695,11 +4696,20 @@ static void cliStatusJson(const char *cmdName, char *cmdline)
         }
     }
     cliPrint("],"); // end arming_disable_flags
-    
+    cliPrintLinef("\"arming_disable_flags_count\":%d ,", ARMING_DISABLE_FLAGS_COUNT);
     cliPrintLinef("\"vbat\":%d", getBatteryVoltage());
     cliPrintLine("}");
 }
 
+// this could all be in 1 command with a parameter: status, attitude, etc.
+static void cliAttitudeJson(const char *cmdName, char *cmdline) {
+    UNUSED(cmdName);
+    UNUSED(cmdline);
+    // attitudes are int16_t 
+    //cliPrintf("%u", (uint32_t)value);
+    cliPrintLinef("{\"attitude\": [%d , %d , %d ]}", attitude.values.roll, attitude.values.pitch, DECIDEGREES_TO_DEGREES(attitude.values.yaw));
+
+}
 static uint8_t getWordLength(char *bufBegin, char *bufEnd)
 {
     while (*(bufEnd - 1) == ' ') {
@@ -6718,6 +6728,7 @@ const clicmd_t cmdTable[] = {
 #ifdef USE_PEGASUS_UI
     CLI_COMMAND_DEF("config", "get all configuration information", NULL, cliConfig),
     CLI_COMMAND_DEF("statusJson", "get status information in JSON format", NULL, cliStatusJson),
+    CLI_COMMAND_DEF("attitudeJson", "get attitude information in JSON format", NULL, cliAttitudeJson),
 #endif
 #ifdef USE_GPS
     CLI_COMMAND_DEF("gpspassthrough", "passthrough gps to serial", NULL, cliGpsPassthrough),
